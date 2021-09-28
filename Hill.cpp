@@ -1,6 +1,8 @@
 /*
-Nama  : Muhammad Luthfi Taufiqurrahman
-NPM   : 140810190036
+Anggota Kelompok : 
+  - Muhammad Luthfi Taufiqurrahman (140810190036)
+  - Gregorius Evangelist Wijayanto (140810190040)
+  - Ihsanuddin Dwi Prasetyo        (140810190048)
 Kelas : B
 */
 
