@@ -1,10 +1,7 @@
 /*
-Anggota Kelompok
-- Muhammad Luthfi Taufiqurrahman (140810190036)
-- Gregorius Evangelist Wijayanto (140810190040)
-- Ihsanuddin Dwi Prasetyo (140810190048)
-Kelas       : B
-Deskripsi   : Program Hill Cipher
+Nama  : Muhammad Luthfi Taufiqurrahman
+NPM   : 140810190036
+Kelas : B
 */
 
 #include <iostream>
@@ -167,6 +164,21 @@ void printVector2D(vector<vector<int>> vec) {
   }
 }
 
+void inputKey(vector<vector<int>>& key, int m) {
+  int num;
+  for (int i = 0; i < m; i++) {
+    vector<int> temp;
+    for (int j = 0; j < m; j++) {
+      cout << "K[" << i + 1 << "][" << j + 1 << "] : "; cin >> num;
+      temp.push_back(num);
+    }
+
+    key.push_back(temp);
+  }
+}
+
+// Semua fungsi yang dibawah ini merupakan fungsi algoritma untuk 
+// melakukan berbagai macam hill cipher enkripsi, dekripsi, dan mencari kunci
 void searchKey(string plain, string cipher, int m) {
   if (m == 2 || m == 3) {
     vector<vector<int>> C, P;
@@ -203,6 +215,80 @@ void searchKey(string plain, string cipher, int m) {
   }
 }
 
+void encryption(string plain, vector<vector<int>> key) {
+  // mendapatkan banyak sisa huruf yang harus diisi 'x'
+  int lastRemainingLetter = plain.length() % key.size();
+  if (lastRemainingLetter != 0) {
+    for (int i = key.size(); i > lastRemainingLetter; i--) {
+      plain += 'x';
+    }
+  }
+
+  cout << '\n' << "Cipherteks : ";
+  for (int i = 0; i < plain.length(); i += key.size()) {
+    vector<vector<int>> container;
+
+    // melakukan pembagian huruf sesuai dengan panjang key
+    // kemudian langsung dikalikan dengan key matriks
+    for (int j = 0; j < key.size(); j++) {
+      vector<int> temp {
+        {(int)(plain[i + j] - 'a')}
+      };
+      container.push_back(temp);
+    }
+
+    vector<vector<int>> result = mod26(matrixMultiplication(key, container));
+
+    // hasil perkalian langsung dikonversi menjadi huruf
+    for (int k = 0; k < key.size(); k++) {
+      cout << (char)(result[k][0] + 'a');
+    }
+  }
+
+  cout << '\n';
+}
+
+void decryption(string cipher, vector<vector<int>> key) {
+  string plain = "";
+  int m = key.size();
+  int deter = determinan(key, m);
+  int mod = modInverse(deter);
+
+  // program hanya berjalan jika matriks key memiliki modulus inverse
+  if (mod != 0) {
+    vector<vector<int>> keyInverse = mod26(matrixMultiplication(adjoin(key, m), mod));
+
+    for (int i = 0; i < cipher.length(); i += m) {
+      vector<vector<int>> container;
+
+      // melakukan pembagian huruf sesuai dengan panjang key
+      // kemudian langsung dikalikan dengan key inverse matriks
+      for (int j = 0; j < key.size(); j++) {
+        vector<int> temp {
+          {(int)(cipher[i + j] - 'a')}
+        };
+        container.push_back(temp);
+      }
+
+      vector<vector<int>> result = mod26(matrixMultiplication(keyInverse, container));
+
+      // hasil perkalian akan dimasukkan kedalam plainteks
+      for (int k = 0; k < key.size(); k++) {
+        plain += (char)(result[k][0] + 'a');
+      }
+    }
+    
+    // melakukan penghapusan huruf 'x' dari plainteks
+    while (plain[plain.length() - 1] == 'x') {
+      plain.pop_back();
+    }
+
+    cout << '\n' << "Plainteks : " << plain << '\n';
+  } else {
+    cout << "Key matriks tidak mempunyai modular inverse." << '\n';
+  }
+}
+
 int main(int argc, char *argv[]) {
   int input, m;
   string plain, cipher;
@@ -219,9 +305,29 @@ int main(int argc, char *argv[]) {
   system("cls");
   switch(input) {
     case 1:
+      cout << "Masukkan m (2 atau 3) : "; cin >> m;
+      if (m == 2 || m == 3) {
+        cout << "Plainteks : "; cin >> plain;
+        cout << "Masukkan key" << '\n';
+        inputKey(key, m);
+        encryption(plain, key);
+      } else {
+        cout << "Nilai m tidak valid!" << '\n';
+      }
+
       break;
 
     case 2:
+      cout << "Masukkan m (2 atau 3) : "; cin >> m;
+      if (m == 2 || m == 3) {
+        cout << "Cipherteks : "; cin >> plain;
+        cout << "Masukkan key" << '\n';
+        inputKey(key, m);
+        decryption(plain, key);
+      } else {
+        cout << "Nilai m tidak valid!" << '\n';
+      }
+
       break;
 
     case 3:
